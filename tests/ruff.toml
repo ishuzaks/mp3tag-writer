@@ -1,0 +1,5 @@
+extend  = "../pyproject.toml"
+lint.ignore = [
+    "S101",
+    "PLR2004",
+]

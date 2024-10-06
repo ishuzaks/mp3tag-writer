@@ -3,7 +3,7 @@ from pytest_mock import MockerFixture
 
 
 class TestMp3TagWriter:
-    def test_load_metadata(self, mocker: MockerFixture):
+    def test_load_metadata(self, mocker: MockerFixture) -> None:
         # モックの設定
         mock_audio = mocker.MagicMock()
         mock_audio.info.length = 120.0  # 例: 長さ120秒
