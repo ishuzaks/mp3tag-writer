@@ -3,6 +3,10 @@ name = "mp3tag-writer"
 version = "0.1.0"
 description = "mp3タグを書き込む簡易なCLIツール"
 readme = "README.md"
+authors = [
+  {name = "ishuzaks", email = "k.suzuki512+develop@gmail.com"},
+]
+license = {text = "MIT License"}
 requires-python = ">=3.12"
 dependencies = []
 
