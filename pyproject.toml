@@ -5,3 +5,9 @@ description = "mp3タグを書き込む簡易なCLIツール"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = []
+
+[tool.uv]
+dev-dependencies = [
+    "mypy>=1.11.2",
+    "ruff>=0.6.9",
+]
