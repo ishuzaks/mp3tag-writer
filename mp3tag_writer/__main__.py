@@ -1,6 +1,7 @@
-def main():
-    print("Hello from mp3tag-writer!")
+import os
+
+from mutagen.mp3 import MP3
 
 
-if __name__ == "__main__":
-    main()
+def load_metadata(file: str | os.PathLike[str]) -> MP3:
+    return MP3(filename=file)
