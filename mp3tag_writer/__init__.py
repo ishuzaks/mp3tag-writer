@@ -1,1 +1,1 @@
-from .__main__ import load_metadata  # noqa: F401
+from .__main__ import load_metadata, write_tags  # noqa: F401
