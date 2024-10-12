@@ -1,5 +1,9 @@
+import json
+from pathlib import Path
+
+import py
 import pytest
-from mp3tag_writer import load_metadata, write_tags
+from mp3tag_writer import load_json_file, load_metadata, write_tags
 from mutagen.id3 import Frames
 from mutagen.mp3 import MP3
 from pytest_mock import MockerFixture
@@ -38,3 +42,54 @@ class TestMp3TagWriter:
         field = "TIT001"
         with pytest.raises(ValueError, match=f"Frame {field} not found"):
             write_tags(mp3=mock_metadata, field=field, value="Sample Title")
+
+
+class TestJSONLoader:
+    @pytest.fixture
+    def simple_json_file(self, tmpdir: py.path.LocalPath) -> py.path.LocalPath:
+        file = tmpdir / "simple.json"
+        file.write_text(
+            """{
+  "tags": {
+    "TALB": "Sample Album",
+    "TDRC": "2024",
+    "TCON": "sample genre",
+    "TPE1": "Sample Artist",
+    "TPE2": "Sample Artists"
+  }
+}""",
+            encoding="utf-8",
+        )
+        return file
+
+    @pytest.fixture
+    def adding_cover_json_file(self, tmpdir: Path) -> Path:
+        file = tmpdir / "adding_cover.json"
+        file.write_text(
+            """{
+  "tags": {
+    "TALB": "Sample Album2",
+    "TDRC": "2022",
+    "TCON": "sample genre2",
+    "TPE1": "Sample Artist2",
+    "TPE2": "Sample Artists2"
+  },
+  "cover": "exclude/images/cover.png"
+}""",
+            encoding="utf-8",
+        )
+        return file
+
+    def test_convert_from_json_to_dict_success(
+        self, simple_json_file: py.path.LocalPath
+    ) -> None:
+        loaded = load_json_file(file=simple_json_file)
+
+        with simple_json_file.open(mode="r", encoding="utf-8") as f:
+            json_data = json.load(f)
+
+        for frame in loaded.get("tags", []):
+            assert any(
+                frame.pprint() == f"{field_name}={text}"
+                for field_name, text in json_data.get("tags").items()
+            )

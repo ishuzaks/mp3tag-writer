@@ -20,3 +20,6 @@ def test_id3_tag_read_from_mp3_instance() -> None:
 
 def test_frames_values() -> None:
     pprint(Frames)
+    fields = ["TALB", "TDRC", "TCON", "TPE1", "TPE2"]
+    for frame in [Frames.get(field) for field in fields]:
+        pprint(frame)
