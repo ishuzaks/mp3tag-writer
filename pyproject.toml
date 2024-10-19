@@ -10,6 +10,7 @@ license = {text = "MIT License"}
 requires-python = ">=3.12"
 dependencies = [
     "mutagen>=1.47.0",
+    "pillow>=11.0.0",
 ]
 
 [tool.uv]
