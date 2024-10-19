@@ -1,7 +1,7 @@
 from pathlib import Path
 from pprint import pprint
 
-from mutagen.id3 import ID3, Frames
+from mutagen.id3 import APIC, ID3, TIT2, Frames
 from mutagen.mp3 import MP3
 
 

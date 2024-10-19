@@ -6,6 +6,7 @@ import pytest
 from mp3tag_writer import load_json_file, load_metadata, write_tags
 from mutagen.id3 import Frames
 from mutagen.mp3 import MP3
+from PIL import Image
 from pytest_mock import MockerFixture
 
 
@@ -62,24 +63,6 @@ class TestJSONLoader:
         )
         return file
 
-    @pytest.fixture
-    def adding_cover_json_file(self, tmpdir: Path) -> Path:
-        file = tmpdir / "adding_cover.json"
-        file.write_text(
-            """{
-  "tags": {
-    "TALB": "Sample Album2",
-    "TDRC": "2022",
-    "TCON": "sample genre2",
-    "TPE1": "Sample Artist2",
-    "TPE2": "Sample Artists2"
-  },
-  "cover": "exclude/images/cover.png"
-}""",
-            encoding="utf-8",
-        )
-        return file
-
     def test_convert_from_json_to_dict_success(
         self, simple_json_file: py.path.LocalPath
     ) -> None:
@@ -88,8 +71,42 @@ class TestJSONLoader:
         with simple_json_file.open(mode="r", encoding="utf-8") as f:
             json_data = json.load(f)
 
-        for frame in loaded.get("tags", []):
+        assert loaded
+        for frame in loaded.get("tags"):
             assert any(
                 frame.pprint() == f"{field_name}={text}"
                 for field_name, text in json_data.get("tags").items()
             )
+
+    @pytest.fixture
+    def adding_cover_json_file(self, tmpdir: Path) -> Path:
+        file = tmpdir / "adding_cover.json"
+        cover = tmpdir / "cover.jpg"
+        white_image = Image.new("RGB", (500, 500), (255, 255, 255))
+        white_image.save(cover)
+        file.write_text(
+            f"""{{
+  "tags": {{
+    "TALB": "Sample Album2",
+    "TDRC": "2022",
+    "TCON": "sample genre2",
+    "TPE1": "Sample Artist2",
+    "TPE2": "Sample Artists2"
+  }},
+  "cover": "{cover}"
+}}""",
+            encoding="utf-8",
+        )
+        return file
+
+    def test_convert_from_json_to_dict_with_cover_success(
+        self, adding_cover_json_file: py.path.LocalPath
+    ) -> None:
+        loaded = load_json_file(file=adding_cover_json_file)
+
+        apic = loaded["cover"]
+        assert apic.encoding == 3
+        assert apic.mime == "image/jpeg"
+        assert apic.type == 3
+        assert apic.desc == "cover"
+        assert apic.data

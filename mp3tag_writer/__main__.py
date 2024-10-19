@@ -3,8 +3,9 @@ import os
 from copy import deepcopy
 from pathlib import Path
 
-from mutagen.id3 import Frames
+from mutagen.id3 import APIC, Frames
 from mutagen.mp3 import MP3
+from PIL import Image
 
 
 def load_metadata(file: str | os.PathLike[str]) -> MP3:
@@ -33,5 +34,16 @@ def load_json_file(file: str | os.PathLike[str]) -> dict:
         for tag, value in loaded.get("tags", {}).items()
         if tag in Frames
     ]
+
+    if "cover" in loaded:
+        cover = Path(loaded["cover"])
+        with cover.open(mode="rb") as f, Image.open(f) as image:
+            data["cover"] = APIC(
+                encoding=3,
+                mime=image.get_format_mimetype(),
+                type=3,
+                desc="cover",
+                data=f.read(),
+            )
 
     return data
